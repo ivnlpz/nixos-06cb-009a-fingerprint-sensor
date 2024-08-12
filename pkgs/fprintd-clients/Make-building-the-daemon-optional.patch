@@ -6,7 +6,7 @@ Subject: [PATCH] Make building the daemon optional
 Co-Authored-By: V <v@anomalous.eu>
 ---
  data/meson.build  | 12 ++++++------
- meson.build       | 33 ++++++++++++++++++---------------
+#idk meson.build       | 33 ++++++++++++++++++---------------
  meson_options.txt |  4 ++++
  src/meson.build   | 30 ++++++++++++++++--------------
  tests/meson.build |  6 ++----
@@ -39,9 +39,9 @@ index ece5fc6..9e8f8dd 100644
          custom_target('man_' + man_name + '.' + man_section.to_string(),
 diff --git a/meson.build b/meson.build
 index b155a4a..f0df9a9 100644
---- a/meson.build
-+++ b/meson.build
-@@ -89,7 +89,7 @@ glib_dep = dependency('glib-2.0', version: '>=' + glib_min_version)
+--- a/meson.build	1970-01-01 09:00:01.000000000 +0900
++++ b/meson.build	2024-08-12 00:26:12.625577088 +0900
+@@ -89,7 +89,7 @@
  gio_dep = dependency('gio-2.0', version: '>=' + glib_min_version)
  gio_unix_dep = dependency('gio-unix-2.0', version: '>=' + glib_min_version)
  gmodule_dep = dependency('gmodule-2.0', version: '>=' + glib_min_version)
@@ -49,8 +49,8 @@ index b155a4a..f0df9a9 100644
 +libfprint_dep = dependency('libfprint-2', version: '>=' + libfprint_min_version, required: get_option('daemon'))
  polkit_gobject_dep = dependency('polkit-gobject-1', version: '>= 0.91')
  dbus_dep = dependency('dbus-1', required: false)
- libsystemd_dep = dependency('libsystemd', required: get_option('pam'))
-@@ -141,21 +141,23 @@ pam_wrapper_dep = dependency('pam_wrapper', required: get_option('pam'))
+ libsystemd_dep = dependency(get_option('libsystemd'), required: get_option('pam'))
+@@ -144,21 +144,24 @@
  
  xmllint = find_program('xmllint', required: false)
  python3 = find_program('python3') # No meson without it!
@@ -63,6 +63,13 @@ index b155a4a..f0df9a9 100644
 -    'pypamtest': get_option('pam'),
 -}
 -python3_available_modules = []
+-
+-foreach module, required : python3_test_modules
+-    if required and run_command(python3, '-c', 'import @0@'.format(module)).returncode() != 0
+-        warning('Python3 module \'' + module + '\' required by test suite not found')
+-    endif
+-endforeach
++
 +if get_option('daemon')
 +    python3_test_modules = {
 +        'cairo': true,
@@ -73,22 +80,17 @@ index b155a4a..f0df9a9 100644
 +        'pypamtest': get_option('pam'),
 +    }
 +    python3_available_modules = []
- 
--foreach module, required : python3_test_modules
--    if required and run_command(python3, '-c', 'import @0@'.format(module)).returncode() != 0
--        error('Python3 module \'' + module + '\' required by test suite not found')
--    endif
--endforeach
++
++
 +    foreach module, required : python3_test_modules
 +        if required and run_command(python3, '-c', 'import @0@'.format(module)).returncode() != 0
 +            error('Python3 module \'' + module + '\' required by test suite not found')
 +        endif
 +    endforeach
-+endif
  
  cdata = configuration_data()
  cdata.set_quoted('GETTEXT_PACKAGE', meson.project_name())
-@@ -197,6 +199,7 @@ if get_option('pam')
+@@ -200,6 +203,7 @@
      output += '  PAM module directory: ' + pam_modules_dir
  endif
  output += '\nOptional features:\n'
