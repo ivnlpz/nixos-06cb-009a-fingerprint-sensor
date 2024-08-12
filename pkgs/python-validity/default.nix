@@ -74,6 +74,10 @@ in buildPythonPackage rec {
     pygobject3
   ];
 
+  nativeBuildInputs = [
+    pkgs.gobject-introspection
+  ];
+
   postInstall = ''
     # this section has been adapted from this AUR package https://aur.archlinux.org/cgit/aur.git/tree/PKGBUILD?h=python-validity
 
